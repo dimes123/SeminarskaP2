@@ -18,7 +18,8 @@ public class Platno extends JPanel {
             D1,D2,D3,D4,D5,D6,D7,D8,
             C1,C2,C3,C4,C5,C6,C7,C8,
             T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22;
-    private ArrayList premesaneKarte;
+    private ArrayList<Karta> karteIgralec = new ArrayList<>();
+    private ArrayList<Karta> karteRacunalnik = new ArrayList<>();
 
     public Platno(){
         super();
@@ -122,8 +123,21 @@ public class Platno extends JPanel {
                 C1,C2,C3,C4,C5,C6,C7,C8,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22));
 
         Collections.shuffle(karte);
-        for (Karta k: karte){
-            System.out.println(k.barva);
+        System.out.println(karte.size());
+
+        for(int i=0; i<karte.size(); i++){
+            if (i <= (karte.size()/2)-1){
+                karteIgralec.add(karte.get(i));
+            }
+            else {
+                karteRacunalnik.add(karte.get(i));
+            }
+        }
+
+        for(int i = 0; i < karteRacunalnik.size(); i++){
+            System.out.print(karteRacunalnik.get(i).barva+" ");
+            System.out.print(karteIgralec.get(i).barva+" ");
+            System.out.println(karteIgralec.size()+ " "+karteRacunalnik.size());
         }
 
 
