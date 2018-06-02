@@ -1,17 +1,22 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
+
+import static java.lang.Thread.sleep;
 
 public class Platno extends JPanel {
     private BufferedImage ozadje;
+    private BufferedImage hrbtnaStran;
     private JButton zacetekIgre;
     private Karta S1,S2,S3,S4,S5,S6,S7,S8,
             H1,H2,H3,H4,H5,H6,H7,H8,
@@ -21,25 +26,105 @@ public class Platno extends JPanel {
     private ArrayList<Karta> karteIgralec = new ArrayList<>();
     private ArrayList<Karta> karteRacunalnik = new ArrayList<>();
 
+    private Karta kartaIgralec;
+    private Karta kartaRacunalnik;
+    private int dy = 10;
+    private int y = 370;
+
+    private JButton vrziKarto;
+    private String napis;
+    private String sporocilo;
+
+    private int tockeIgralec = 0;
+    private int tockeRacunalnik = 0;
+    private String kdoJePrvi;
+    private int stevec = 0;
+
     public Platno(){
         super();
-        this.zacetekIgre = new JButton("Začetek Igre");
+        this.zacetekIgre = new JButton("ZAČETEK IGRE");
+        this.vrziKarto = new JButton("VRŽI KARTO");
+        kdoJePrvi = "igralec";
         definirajKarte();
-        zacetekIgre.addActionListener(new ActionListener() {
+        zacetekIgre.addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Mikja");
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
                 pobrisi();
+                razdeliKarte(dy, y);
+            }
 
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+                zacetekIgre.setBorderPainted(true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                super.mouseExited(e);
+                zacetekIgre.setBorderPainted(false);
             }
         });
+
+        zacetekIgre.setBackground(new Color(153,76,0));
+        vrziKarto.setBackground(new Color(153,76,0));
+
+
+        zacetekIgre.setHorizontalAlignment(SwingConstants.CENTER);
+        vrziKarto.setHorizontalAlignment(SwingConstants.CENTER);
+
+
+
+        zacetekIgre.setBounds(150,250,400,150);
+        vrziKarto.setBounds(250,500,200,100);
+
+        zacetekIgre.setFont(new Font("Impact", Font.PLAIN, 40));
+        vrziKarto.setFont(new Font("Impact", Font.PLAIN, 24));
+
+        zacetekIgre.setForeground(Color.BLACK);
+        vrziKarto.setForeground(Color.BLACK);
+
+        zacetekIgre.setFocusPainted(false);
+        vrziKarto.setFocusPainted(false);
+
+        zacetekIgre.setBorderPainted(false);
+        vrziKarto.setBorderPainted(false);
+
+        vrziKarto.setVisible(false);
+
+        this.vrziKarto.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                igraIgralec();
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+                vrziKarto.setBorderPainted(true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                super.mouseExited(e);
+                vrziKarto.setBorderPainted(false);
+            }
+        });
+
         this.add(zacetekIgre);
+        this.add(vrziKarto);
+
+
 
         try {
             ozadje = ImageIO.read(new File(getClass().getResource("LesenoOzadje.png").getFile()));
+            hrbtnaStran = ImageIO.read(new File(getClass().getResource("HrbtnaStran.png").getFile()));
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     @Override
@@ -47,18 +132,46 @@ public class Platno extends JPanel {
         super.paintComponent(g);
         g.drawImage(ozadje, 0,0,this.getWidth(), this.getHeight(), this);
         //g.drawImage(karta, 100,100,this);
+        //g.drawImage(hrbtnaStran, 0,100, this);
+
+    }
+
+    public void razdeliKarte(int dy, int y){
+        ///Nariše hrbtne strani kart
+        if (stevec == 0) {
+            for (int i = karteIgralec.size() - 1; i >= 0; i--) {
+                getGraphics().drawImage(hrbtnaStran, -100, y - dy, this);
+                getGraphics().drawImage(hrbtnaStran, 600, y - dy, this);
+                y = y - dy;
+            }
+            stevec++;
+        }
+        else {
+            for (int i = karteIgralec.size() - 1; i >= 0; i--) {
+                getGraphics().drawImage(hrbtnaStran, -100, y - dy, this);
+                getGraphics().drawImage(hrbtnaStran, 600, y - dy, this);
+                y = y - dy;
+            }
+            try {
+                sleep(4000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            this.paintImmediately(200, 210, 100, 180);
+            this.paintImmediately(420, 210, 100, 180);
+        }
+        //this.add(vrziKarto);
 
     }
 
     @Override
     public Dimension getPreferredSize() {
-
         return new Dimension(700, 600);
     }
 
     public void pobrisi(){
-
         zacetekIgre.setVisible(false);
+        vrziKarto.setVisible(true);
     }
 
     public void definirajKarte(){
@@ -123,7 +236,6 @@ public class Platno extends JPanel {
                 C1,C2,C3,C4,C5,C6,C7,C8,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22));
 
         Collections.shuffle(karte);
-        System.out.println(karte.size());
 
         for(int i=0; i<karte.size(); i++){
             if (i <= (karte.size()/2)-1){
@@ -133,13 +245,79 @@ public class Platno extends JPanel {
                 karteRacunalnik.add(karte.get(i));
             }
         }
+    }
 
-        for(int i = 0; i < karteRacunalnik.size(); i++){
-            System.out.print(karteRacunalnik.get(i).barva+" ");
-            System.out.print(karteIgralec.get(i).barva+" ");
-            System.out.println(karteIgralec.size()+ " "+karteRacunalnik.size());
+    public void igraIgralec() {
+        kartaIgralec = karteIgralec.get(0);
+        getGraphics().drawImage(kartaIgralec.slika, 200,210, 100,180, this);
+        if (kdoJePrvi == "igralec") {
+            igraRacunalnik();
+        }
+        else{
+            novaRunda();
+        }
+    }
+
+    public void igraRacunalnik(){
+
+        kartaRacunalnik = karteRacunalnik.get(0);
+        getGraphics().drawImage(kartaRacunalnik.slika, 420,210, 100,180, this);
+        if (kdoJePrvi == "igralec"){
+            novaRunda();
+        }
+    }
+
+    public void novaRunda(){
+        if (kartaIgralec.barva == kartaRacunalnik.barva){
+            if (kartaIgralec.moc > kartaRacunalnik.moc){
+                tockeIgralec = tockeIgralec + kartaIgralec.vrednost+kartaRacunalnik.vrednost;
+                kdoJePrvi = "igralec";
+            }
+            else{
+                tockeRacunalnik = tockeRacunalnik + kartaIgralec.vrednost+kartaRacunalnik.vrednost;
+                kdoJePrvi = "racunalnik";
+            }
+        }else if(kartaIgralec.barva != kartaRacunalnik.barva && (kartaIgralec.barva == "tarok" || kartaRacunalnik.barva=="tarok")){
+            if (kartaIgralec.barva == "tarok"){
+                tockeIgralec = tockeIgralec + kartaIgralec.vrednost+kartaRacunalnik.vrednost;
+                kdoJePrvi = "igralec";
+            }
+            else{
+                tockeRacunalnik = tockeRacunalnik + kartaIgralec.vrednost+kartaRacunalnik.vrednost;
+                kdoJePrvi = "racunalnik";
+            }
+        }
+        else{
+            if (kdoJePrvi == "igralec"){
+                tockeIgralec = tockeIgralec + kartaIgralec.vrednost+kartaRacunalnik.vrednost;
+                kdoJePrvi = "igralec";
+            }
+            else{
+                tockeRacunalnik = tockeRacunalnik + kartaIgralec.vrednost+kartaRacunalnik.vrednost;
+                kdoJePrvi = "racunalnik";
+            }
+        }
+        karteIgralec.remove(kartaIgralec);
+        karteRacunalnik.remove(kartaRacunalnik);
+        y = y-dy;
+        this.paintImmediately(0,0,100,600);
+        this.paintImmediately(600,0,100,600);
+        razdeliKarte(10,y);
+        if (kdoJePrvi == "racunalnik"){
+            System.out.println("Sedaj igra računalnik");
+            igraRacunalnik();
         }
 
+        if (karteIgralec.size() == 25 && karteRacunalnik.size() == 25){
+            if (tockeIgralec>tockeRacunalnik){
+                sporocilo = "ZMAGAL JE UPORABNIK";
+                JOptionPane.showMessageDialog(null, sporocilo, "KONEC JE IGRE!", JOptionPane.WARNING_MESSAGE);
+            }
+            else {
+                sporocilo = "ZMAGAL JE RAČUNALNIK";
+                JOptionPane.showMessageDialog(null, sporocilo, "KONEC JE IGRE!", JOptionPane.WARNING_MESSAGE);
+            }
+        }
 
     }
 
