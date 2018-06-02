@@ -5,3 +5,5 @@ Aplikacija je zasnovana na priljubljeni igri s kartami imenovani "vojna". Uporab
 - Če sta obe karti iste barve pobere večja karta (pri srcu in kari je obratno kot pri piku in križu)
 - Če je ena izmed kart tarok, pobere večji tarok
 - Če sta obe karti različnih barv, pobere tisti , ki je prvi vrgel karto
+
+Igra se konča, ko obem igralcem zmanjka kart in se proglasi zmagovalca.
