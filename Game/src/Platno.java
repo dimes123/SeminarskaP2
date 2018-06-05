@@ -1,21 +1,25 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 
 import static java.lang.Thread.sleep;
 
 public class Platno extends JPanel {
+    private Okno okno;
+
     private BufferedImage ozadje;
     private BufferedImage hrbtnaStran;
     private JButton zacetekIgre;
+    private JButton novaIgra;
+
     private Karta S1,S2,S3,S4,S5,S6,S7,S8,
             H1,H2,H3,H4,H5,H6,H7,H8,
             D1,D2,D3,D4,D5,D6,D7,D8,
@@ -24,6 +28,9 @@ public class Platno extends JPanel {
 
     private ArrayList<Karta> karteIgralec = new ArrayList<>();
     private ArrayList<Karta> karteRacunalnik = new ArrayList<>();
+
+    private JLabel tockeIgr;
+    private JLabel tockeRac;
 
     private Karta kartaIgralec;
     private Karta kartaRacunalnik;
@@ -38,10 +45,13 @@ public class Platno extends JPanel {
     private String kdoJePrvi;
     private int stevec = 0;
 
-    public Platno(){
+    public Platno(Okno okno){
         super();
+        this.okno = okno;
         this.zacetekIgre = new JButton("ZAČETEK IGRE");
         this.vrziKarto = new JButton("VRŽI KARTO");
+        this.tockeIgr = new JLabel();
+        this.tockeRac = new JLabel();
         kdoJePrvi = "igralec";
         definirajKarte();
         zacetekIgre.addMouseListener(new MouseAdapter() {
@@ -65,17 +75,30 @@ public class Platno extends JPanel {
             }
         });
 
+        tockeIgr.setText("<html>Točke Igralec<br/><center>"+tockeIgralec+"</center></html>");
+        tockeRac.setText("<html>Točke Računalnik<br/><center>"+tockeRacunalnik+"</center></html>");
+
         zacetekIgre.setBackground(new Color(153,76,0));
         vrziKarto.setBackground(new Color(153,76,0));
+        tockeIgr.setBackground(new Color(182, 155, 76));
+        tockeRac.setBackground(new Color(182, 155, 76));
 
         zacetekIgre.setHorizontalAlignment(SwingConstants.CENTER);
         vrziKarto.setHorizontalAlignment(SwingConstants.CENTER);
+        tockeIgr.setVerticalAlignment(SwingConstants.CENTER);
+        tockeIgr.setHorizontalAlignment(SwingConstants.CENTER);
+        tockeRac.setVerticalAlignment(SwingConstants.CENTER);
+        tockeRac.setHorizontalAlignment(SwingConstants.CENTER);
 
         zacetekIgre.setBounds(150,250,400,150);
         vrziKarto.setBounds(250,500,200,100);
+        tockeIgr.setBounds(20,0, 120,80);
+        tockeRac.setBounds(550,0, 150,80);
 
         zacetekIgre.setFont(new Font("Impact", Font.PLAIN, 40));
         vrziKarto.setFont(new Font("Impact", Font.PLAIN, 24));
+        tockeIgr.setFont(new Font("Impact", Font.PLAIN, 18));
+        tockeRac.setFont(new Font("Impact", Font.PLAIN, 18));
 
         zacetekIgre.setForeground(Color.BLACK);
         vrziKarto.setForeground(Color.BLACK);
@@ -87,6 +110,14 @@ public class Platno extends JPanel {
         vrziKarto.setBorderPainted(false);
 
         vrziKarto.setVisible(false);
+        tockeIgr.setVisible(true);
+        tockeRac.setVisible(true);
+        zacetekIgre.setVisible(true);
+
+
+
+        tockeIgr.setOpaque(true);
+        tockeRac.setOpaque(true);
 
         this.vrziKarto.addMouseListener(new MouseAdapter() {
             @Override
@@ -107,8 +138,6 @@ public class Platno extends JPanel {
                 vrziKarto.setBorderPainted(false);
             }
         });
-        this.add(vrziKarto);
-
         try {
             ozadje = ImageIO.read(new File(getClass().getResource("LesenoOzadje.png").getFile()));
             hrbtnaStran = ImageIO.read(new File(getClass().getResource("HrbtnaStran.png").getFile()));
@@ -116,10 +145,16 @@ public class Platno extends JPanel {
             e.printStackTrace();
         }
 
+        this.add(vrziKarto);
+        this.add(zacetekIgre);
+        this.add(tockeIgr);
+        this.add(tockeRac);
+
+
     }
 
     public void definirajKarte(){
-        //Definiramo karte, premešamo seznam in razdelimo karte
+        //Definiramo karte, p
         T1= new Karta("Karte/T1.png", "tarok", 1, 11);
         T2= new Karta("Karte/T2.png", "tarok", 1, 12);
         T3= new Karta("Karte/T3.png", "tarok", 1, 13);
@@ -205,7 +240,7 @@ public class Platno extends JPanel {
                 getGraphics().drawImage(hrbtnaStran, -100, y - dy, this);
                 getGraphics().drawImage(hrbtnaStran, 600, y - dy, this);
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(20);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -224,10 +259,24 @@ public class Platno extends JPanel {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            if (kdoJePrvi.equals("racunalnik")){
+                tockeIgr.setBackground(new Color(153,76,0));
+                tockeRac.setBackground(new Color(51, 204, 51));
+                tockeRac.setText("<html>Točke Računalnik<br/><center>"+tockeRacunalnik+"</center></html>");
+            }
+            else{
+                tockeIgr.setBackground(new Color(51, 204, 51));
+                tockeRac.setBackground(new Color(153,76,0));
+                tockeIgr.setText("<html>Točke Igralec<br/><center>"+tockeIgralec+"</center></html>");
+            }
             this.paintImmediately(200, 210, 100, 180);
             this.paintImmediately(420, 210, 100, 180);
+
         }
-        //this.add(vrziKarto);
+
+
+
+
 
     }
 
@@ -301,22 +350,38 @@ public class Platno extends JPanel {
         karteIgralec.remove(kartaIgralec);
         karteRacunalnik.remove(kartaRacunalnik);
         y = y-dy;
-        this.paintImmediately(0,0,100,600);
-        this.paintImmediately(600,0,100,600);
+        this.paintImmediately(0,40,100,600);
+        this.paintImmediately(600,40,100,600);
         razdeliKarte(10,y);
-        if (kdoJePrvi == "racunalnik"){
+        if (kdoJePrvi.equals("racunalnik")&&karteRacunalnik.size()!=0){
             System.out.println("Sedaj igra računalnik");
             igraRacunalnik();
         }
 
         if (karteIgralec.size() == 0 && karteRacunalnik.size() == 0){
+            y = 370;
+            dy = 10;
             if (tockeIgralec>tockeRacunalnik){
-                sporocilo = "ZMAGAL JE UPORABNIK";
-                JOptionPane.showMessageDialog(null, sporocilo, "KONEC JE IGRE!", JOptionPane.WARNING_MESSAGE);
+                sporocilo = "ZMAGAL JE UPORABNIK!\n Ali bi odigral še eno igro?";
+                int dialogButton = JOptionPane.YES_NO_OPTION;
+                int dialogResult = JOptionPane.showConfirmDialog(this, sporocilo);
+                if (dialogResult == 0){
+                    okno.novaIgra();
+                }
+                else{
+                    System.exit(0);
+                }
             }
             else {
-                sporocilo = "ZMAGAL JE RAČUNALNIK";
-                JOptionPane.showMessageDialog(null, sporocilo, "KONEC JE IGRE!", JOptionPane.WARNING_MESSAGE);
+                sporocilo = "ZMAGAL JE RAČUNALNIK\n Ali bi odigral še eno igro?";
+                int dialogButton = JOptionPane.YES_NO_OPTION;
+                int dialogResult = JOptionPane.showConfirmDialog(this, sporocilo);
+                if (dialogResult == 0){
+                    okno.novaIgra();
+                }
+                else{
+                    System.exit(0);
+                }
             }
         }
 
